@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:weather_icons/weather_icons.dart';
 import '../models/weather.dart';
 import '../services/weather_service.dart';
 
@@ -32,7 +34,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
     // Validate input: Don't allow empty searches
     if (city.isEmpty) {
-      _showSnackBar('Please enter a city name', Colors.orange);
+      _showSnackBar('Please enter a city name', Colors.orangeAccent);
       return;
     }
 
@@ -47,11 +49,36 @@ class _WeatherScreenState extends State<WeatherScreen> {
   void _showSnackBar(String message, Color backgroundColor) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(message, style: GoogleFonts.lato()),
         backgroundColor: backgroundColor,
         duration: const Duration(seconds: 3),
       ),
     );
+  }
+
+  // Helper: Get weather icon from description
+  IconData _getWeatherIcon(String description) {
+    switch (description.toLowerCase()) {
+      case 'clear sky':
+        return WeatherIcons.day_sunny;
+      case 'few clouds':
+        return WeatherIcons.day_cloudy;
+      case 'scattered clouds':
+      case 'broken clouds':
+        return WeatherIcons.cloud;
+      case 'shower rain':
+        return WeatherIcons.showers;
+      case 'rain':
+        return WeatherIcons.rain;
+      case 'thunderstorm':
+        return WeatherIcons.thunderstorm;
+      case 'snow':
+        return WeatherIcons.snow;
+      case 'mist':
+        return WeatherIcons.fog;
+      default:
+        return WeatherIcons.cloud;
+    }
   }
 
   @override
@@ -64,12 +91,14 @@ class _WeatherScreenState extends State<WeatherScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       // App bar at the top
       appBar: AppBar(
-        title: const Text('🌤️ Weather App'),
-        centerTitle: true,
+        title: Text('🌤️ Weather App', style: GoogleFonts.lato(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        backgroundColor: Colors.blue.shade400,
+        centerTitle: true,
+        foregroundColor: Colors.black,
       ),
 
       // Main content area
@@ -86,32 +115,31 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     controller: _cityController,
                     decoration: InputDecoration(
                       hintText: 'Enter city name...',
-                      prefixIcon: const Icon(Icons.location_city),
+                      prefixIcon: const Icon(Icons.location_city, color: Colors.grey),
+                      filled: true,
+                      fillColor: Colors.white,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     ),
+                    style: GoogleFonts.lato(),
                     // Allow pressing Enter to search
                     onSubmitted: (_) => _searchWeather(),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
 
                 // Search button
-                ElevatedButton.icon(
+                IconButton(
+                  icon: const Icon(Icons.search, size: 28),
                   onPressed: _searchWeather,
-                  icon: const Icon(Icons.search),
-                  label: const Text('Search'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    backgroundColor: Colors.blue.shade400,
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.all(14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ],
@@ -133,19 +161,13 @@ class _WeatherScreenState extends State<WeatherScreen> {
                 if (snapshot.hasError) {
                   return Center(
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.error_outline,
-                          color: Colors.red,
-                          size: 48,
-                        ),
+                        const Icon(Icons.error_outline, color: Colors.redAccent, size: 60),
                         const SizedBox(height: 16),
                         Text(
                           snapshot.error.toString().replaceFirst('Exception: ', ''),
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 16,
-                          ),
+                          style: GoogleFonts.lato(color: Colors.redAccent, fontSize: 16),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -160,43 +182,46 @@ class _WeatherScreenState extends State<WeatherScreen> {
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Colors.blue.shade300, Colors.blue.shade600],
+                        colors: [Colors.blue.shade400, Colors.blue.shade600],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withOpacity(0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
                     ),
                     child: Column(
                       children: [
                         // City name
                         Text(
                           weather.city,
-                          style: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                          style: GoogleFonts.lato(fontSize: 34, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         const SizedBox(height: 16),
 
                         // Temperature (main focus)
                         Text(
                           '${weather.temperature.toStringAsFixed(1)}°C',
-                          style: const TextStyle(
-                            fontSize: 64,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                          style: GoogleFonts.raleway(fontSize: 72, fontWeight: FontWeight.w300, color: Colors.white),
                         ),
                         const SizedBox(height: 8),
 
                         // Weather description
-                        Text(
-                          weather.description,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.white70,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            BoxedIcon(_getWeatherIcon(weather.description), color: Colors.white.withOpacity(0.85)),
+                            const SizedBox(width: 8),
+                            Text(
+                              weather.description,
+                              style: GoogleFonts.lato(fontSize: 20, color: Colors.white.withOpacity(0.85)),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 24),
 
@@ -205,12 +230,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             WeatherInfoCard(
-                              icon: Icons.opacity,
+                              icon: WeatherIcons.humidity,
                               label: 'Humidity',
                               value: '${weather.humidity}%',
                             ),
                             WeatherInfoCard(
-                              icon: Icons.air,
+                              icon: WeatherIcons.wind,
                               label: 'Wind Speed',
                               value: '${weather.windSpeed.toStringAsFixed(1)} m/s',
                             ),
@@ -244,26 +269,23 @@ class WeatherInfoCard extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
+    super.key
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: Colors.white, size: 32),
+        BoxedIcon(icon, color: Colors.white.withOpacity(0.85), size: 32),
         const SizedBox(height: 8),
         Text(
           label,
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
+          style: GoogleFonts.lato(color: Colors.white.withOpacity(0.7), fontSize: 14),
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          style: GoogleFonts.lato(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ],
     );
